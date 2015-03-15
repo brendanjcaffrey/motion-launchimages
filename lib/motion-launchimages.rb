@@ -16,9 +16,21 @@ end
 
 desc 'Take launch images of your app at all display resolutions'
 task :launchimages do
-  ['iPhone 5s', 'iPhone 6', 'iPhone 6 Plus'].each do |device|
+  devices = []
+  family = Motion::Project::App.config.device_family
+  family = [family] if family.is_a?(Symbol)
+
+  if family.index(:iphone) != nil
+    devices << 'iPhone 4s' << 'iPhone 5s' << 'iPhone 6' << 'iPhone 6 Plus'
+  end
+
+  if family.index(:ipad) != nil
+    devices << 'iPad 2' << 'iPad Air'
+  end
+
+  devices.each do |device|
     puts "Taking screenshot on #{device}"
-    Open3.popen3({'take_launchimages' => 'true', 'device_name' => device}, 'rake') do |i, o, s|
+    Open3.popen3({'take_launchimages' => 'true', 'device_name' => device}, 'rake') do |i, o, e, s|
       o.read
     end
   end
