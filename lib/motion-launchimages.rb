@@ -21,11 +21,11 @@ task :launchimages do
   family = [family] if family.is_a?(Symbol)
 
   if family.index(:iphone) != nil
-    devices << 'iPhone 4s' << 'iPhone 5s' << 'iPhone 6' << 'iPhone 6 Plus'
+    devices << 'iPhone SE' << 'iPhone 8' << 'iPhone 8 Plus' << 'iPhone X'
   end
 
   if family.index(:ipad) != nil
-    devices << 'iPad 2' << 'iPad Air'
+    devices << 'iPad Pro (9.7-inch)' << 'iPad Pro (10.5-inch)' << 'iPad Pro (12.9-inch)'
   end
 
   devices.each do |device|

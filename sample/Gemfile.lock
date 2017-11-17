@@ -6,7 +6,7 @@ PATH
 GEM
   remote: https://rubygems.org/
   specs:
-    rake (10.4.2)
+    rake (12.3.0)
 
 PLATFORMS
   ruby
@@ -14,3 +14,6 @@ PLATFORMS
 DEPENDENCIES
   motion-launchimages!
   rake
+
+BUNDLED WITH
+   1.13.7
