@@ -4,6 +4,10 @@ module Motion
       NSBundle.mainBundle.objectForInfoDictionaryKey('screenshot_path')
     end
 
+    def self.device_name
+      NSBundle.mainBundle.objectForInfoDictionaryKey('device_name')
+    end
+
     def self.taking?
       screenshot_path != nil
     end
@@ -22,30 +26,25 @@ module Motion
     end
 
     def self.capture!(orientation)
+      # sanity check the device values
       screen = UIScreen.mainScreen
-      height = screen.bounds.size.height
-      scale = begin
-        if !screen.respondsToSelector('displayLinkWithTarget:selector:')
-          ''
-        elsif screen.scale == 1.0
-          ''
-        elsif screen.scale == 2.0
-          '@2x'
-        elsif screen.scale == 3.0
-          '@3x'
-        else
-          puts 'Error: Unable to determine screen scale'
-          exit
-        end
-      end
-      filename = generate_filename(height, scale, orientation)
+      height = screen.bounds.size.height.to_i
+      scale = screen.respondsToSelector('displayLinkWithTarget:selector:') ? screen.scale.to_i : 1
+      device = get_device(device_name)
+      expected_height = (orientation == :portrait ? device.height : device.width) / device.scale
 
-      if scale != ''
+      if expected_height != height || device.scale != scale
+        puts "In #{orientation.to_s}, height was expected to be #{expected_height} but was #{height} and/or scale was expected to be #{device.scale} but was #{scale}"
+        exit
+      end
+
+      if scale > 1
         UIGraphicsBeginImageContextWithOptions(window.bounds.size, false, screen.scale)
-      else
+      else # TODO not sure if this is necessary anymore?
         UIGraphicsBeginImageContext(window.bounds.size)
       end
 
+      filename = screenshot_path + device.filename(orientation)
       window.layer.renderInContext(UIGraphicsGetCurrentContext())
       image = UIGraphicsGetImageFromCurrentImageContext()
       UIGraphicsEndImageContext()
@@ -53,45 +52,11 @@ module Motion
       data.writeToFile(filename, atomically:true)
       puts "Wrote to #{filename}"
 
-      if orientation == :portrait && should_rotate_and_take_again?(height)
+      if orientation == :portrait && device.landscape
         take!(:landscape)
       else
         exit
       end
-    end
-
-    def self.generate_filename(height, scale, orientation)
-      height = height.to_i
-      filename = screenshot_path + 'Default'
-
-      if orientation == :portrait
-        height_to_filename = {
-          568 => '-568h', # iPhone 5s/SE
-          667 => '-667h', # iPhone 6/7/8
-          736 => '-736h', # iPhone 6/7/8 Plus
-          812 => '-812h', # iPhone X
-
-          1024 => '-Portrait', # iPad 9.7
-          1112 => '-Portrait-1112h', # iPad 10.5
-          1366 => '-Portrait-1366h', # iPad 12.9
-        }
-      elsif orientation == :landscape
-        height_to_filename = {
-          768 => '-Landscape', # iPad 9.7
-          834 => '-Landscape-834h', # iPad 10.5
-          1024 => '-Landscape-1024h', # iPad 12.9
-        }
-      else
-        puts "Error: Invalid orientation #{orientation}"
-        exit
-      end
-
-      if !height_to_filename.has_key?(height)
-        puts "Error: Invalid screen height #{height}"
-        exit
-      end
-
-      filename << height_to_filename[height] << scale << '.png'
     end
 
     # ported from BubbleWrap to reduce dependencies
@@ -105,11 +70,6 @@ module Motion
       }.first
 
       key_window || normal_windows.first
-    end
-
-    def self.should_rotate_and_take_again?(height)
-      # TODO consolidate this and the height_to_filename maps above
-      height == 1024 || height == 1112 || height == 1366
     end
 
     def self.rotate(to)

@@ -43,10 +43,10 @@ end
 
 ## Running
 
-Just run `rake launchimages`! The task will launch your app in the simulator several times with different screen sizes and save the screenshots in your resources directory with the correct names. It detects whether it's being run on an iPhone or iPad (or both) app and only takes the screenshots it needs to.
+Just run `rake launchimages`. The task will launch your app in the simulator several times with different screen sizes and save the screenshots in your resources directory with the correct names. It detects whether it's being run on an iPhone or iPad (or both) app and only takes the screenshots it needs to.
 
-If you want to just take the screenshot at one resolution, you can run `rake take_launchimages=true device_name="iPhone 6 Plus"` (for example). Any of the iPhone or iPad devices should work. You can get a full list of what's available by opening the simulator, going to the `Hardware` menu and looking under `Device`.
+If you want to just take the screenshot for one device, you can run `rake take_launchimages=true device_name="iPhone 8 Plus"` (for example). See [devices.rb](lib/motion/devices.rb) for a list of acceptable values for `device_name`.
 
-## Contact
+### Hybrid Apps
 
-[Brendan J. Caffrey](http://brendan.jcaffrey.com/)
+If you have a hybrid app (iPhone and iPad), you may want to split up the launch image generation into two steps by running `rake launchimages type="ipad"`, closing all open simulators when it's done, then `rake launchimages type="iphone"` after. There seems to be some sort of limit on the number of simulators that can be open at once, and the `rake` command hangs when the limit is hit.
