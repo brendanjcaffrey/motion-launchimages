@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name        = 'motion-launchimages'
-  s.version     = '1.0.0'
+  s.version     = '1.1.0'
   s.summary     = 'Automate RubyMotion launch images'
   s.description = 'Automate RubyMotion launch images'
   s.homepage    = 'https://github.com/brendanjcaffrey/motion-launchimages'
